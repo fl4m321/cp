@@ -11,7 +11,7 @@ RUN apt-get update && \
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
-# Create a new non-root user
+# Create a new non-root user and the necessary directories
 RUN useradd -m admin && mkdir -p /home/admin/panel
 
 # **Fix Permissions as Root Before Switching Users (No sudo needed)**
@@ -24,6 +24,9 @@ WORKDIR /home/admin/panel
 # Copy backend and frontend files as root (before switching to admin user)
 COPY --chown=admin:admin backend /home/admin/panel/backend
 COPY --chown=admin:admin frontend /home/admin/panel/frontend
+
+# Verify the backend directory has package.json
+RUN ls -l /home/admin/panel/backend  # For debugging, verify package.json is copied
 
 # Install backend dependencies
 WORKDIR /home/admin/panel/backend
