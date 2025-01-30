@@ -1,4 +1,4 @@
- Use Ubuntu 22.04 as the base image
+# Use Ubuntu 22.04 as the base image
 FROM ubuntu:22.04
 
 # Install necessary packages
@@ -33,3 +33,16 @@ EXPOSE 3000
 
 # Start the backend server
 CMD ["node", "server.js"]
+
+# Backend - Express API for VPS control
+WORKDIR /home/admin/panel/backend
+COPY backend /home/admin/panel/backend
+RUN npm install
+
+# Frontend - React-based UI
+WORKDIR /home/admin/panel/frontend
+COPY frontend /home/admin/panel/frontend
+RUN npm install && npm run build
+
+# Start both frontend and backend
+CMD ["sh", "-c", "cd /home/admin/panel/backend && node server.js & cd /home/admin/panel/frontend && npm start"]
