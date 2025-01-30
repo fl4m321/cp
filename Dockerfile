@@ -27,7 +27,7 @@ COPY frontend /home/admin/panel/frontend
 
 # Install backend dependencies
 WORKDIR /home/admin/panel/backend
-RUN npm install --unsafe-perm
+RUN chown -R admin:admin /home/admin/panel/backend && npm install --unsafe-perm
 
 # Install frontend dependencies
 WORKDIR /home/admin/panel/frontend
