@@ -14,20 +14,20 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
 # Create a new non-root user
 RUN useradd -m admin && mkdir -p /home/admin/panel
 
-# **Fix Permissions Before Switching Users (No sudo needed)**
-RUN chown -R admin:admin /home/admin
+# **Fix Permissions as Root Before Switching Users (No sudo needed)**
+RUN chown -R admin:admin /home/admin/panel
 
 # Switch to non-root user
 USER admin
 WORKDIR /home/admin/panel
 
-# Copy backend and frontend files
-COPY backend /home/admin/panel/backend
-COPY frontend /home/admin/panel/frontend
+# Copy backend and frontend files as root (before switching to admin user)
+COPY --chown=admin:admin backend /home/admin/panel/backend
+COPY --chown=admin:admin frontend /home/admin/panel/frontend
 
 # Install backend dependencies
 WORKDIR /home/admin/panel/backend
-RUN chown -R admin:admin /home/admin/panel/backend && npm install --unsafe-perm
+RUN npm install --unsafe-perm
 
 # Install frontend dependencies
 WORKDIR /home/admin/panel/frontend
@@ -37,4 +37,4 @@ RUN npm install && npm run build
 EXPOSE 3000
 
 # Start both frontend and backend
-CMD ["sh", "-c", "cd /home/admin/panel/backend && node server.js & cd /home/admin/panel/frontend && npm start"]
+CMD ["sh", "-c", "cd /home/admin/panel/backend && node server.js & cd /home/admin/panel/frontend && npm start && wait"]
