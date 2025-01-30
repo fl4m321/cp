@@ -20,29 +20,20 @@ RUN useradd -m admin && \
 USER admin
 WORKDIR /home/admin/panel
 
-# Copy backend and frontend files
+# Copy both backend and frontend files
 COPY backend /home/admin/panel/backend
 COPY frontend /home/admin/panel/frontend
 
-# Install dependencies for backend
+# Install backend dependencies
 WORKDIR /home/admin/panel/backend
 RUN npm install
+
+# Install frontend dependencies
+WORKDIR /home/admin/panel/frontend
+RUN npm install && npm run build
 
 # Expose the web panel port
 EXPOSE 3000
 
-# Start the backend server
-CMD ["node", "server.js"]
-
-# Backend - Express API for VPS control
-WORKDIR /home/admin/panel/backend
-COPY backend /home/admin/panel/backend
-RUN npm install
-
-# Frontend - React-based UI
-WORKDIR /home/admin/panel/frontend
-COPY frontend /home/admin/panel/frontend
-RUN npm install && npm run build
-
-# Start both frontend and backend
-CMD ["sh", "-c", "cd /home/admin/panel/backend && node server.js & cd /home/admin/panel/frontend && npm start"]
+# Start backend and frontend
+CMD ["sh", "-c", "node /home/admin/panel/backend/server.js & npm --prefix /home/admin/panel/frontend start"]
