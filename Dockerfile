@@ -20,13 +20,16 @@ RUN useradd -m admin && \
 USER admin
 WORKDIR /home/admin/panel
 
-# Copy both backend and frontend files
+# Copy backend and frontend files
 COPY backend /home/admin/panel/backend
 COPY frontend /home/admin/panel/frontend
 
+# Ensure correct ownership of copied files
+RUN sudo chown -R admin:admin /home/admin/panel
+
 # Install backend dependencies
 WORKDIR /home/admin/panel/backend
-RUN npm install
+RUN npm install --unsafe-perm
 
 # Install frontend dependencies
 WORKDIR /home/admin/panel/frontend
@@ -35,5 +38,5 @@ RUN npm install && npm run build
 # Expose the web panel port
 EXPOSE 3000
 
-# Start backend and frontend
-CMD ["sh", "-c", "node /home/admin/panel/backend/server.js & npm --prefix /home/admin/panel/frontend start"]
+# Start both frontend and backend
+CMD ["sh", "-c", "cd /home/admin/panel/backend && node server.js & cd /home/admin/panel/frontend && npm start"]
