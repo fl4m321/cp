@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 
 # Install necessary packages
 RUN apt-get update && \
-    apt-get install -y curl unzip sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils && \
+    apt-get install -y curl unzip qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -12,9 +12,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
 # Create a new non-root user
-RUN useradd -m admin && \
-    mkdir -p /home/admin/panel && \
-    chown -R admin:admin /home/admin
+RUN useradd -m admin && mkdir -p /home/admin/panel
+
+# **Fix Permissions Before Switching Users (No sudo needed)**
+RUN chown -R admin:admin /home/admin
 
 # Switch to non-root user
 USER admin
@@ -23,9 +24,6 @@ WORKDIR /home/admin/panel
 # Copy backend and frontend files
 COPY backend /home/admin/panel/backend
 COPY frontend /home/admin/panel/frontend
-
-# Ensure correct ownership of copied files
-RUN sudo chown -R admin:admin /home/admin/panel
 
 # Install backend dependencies
 WORKDIR /home/admin/panel/backend
